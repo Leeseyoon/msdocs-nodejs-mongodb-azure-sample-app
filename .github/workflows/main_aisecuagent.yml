@@ -61,4 +61,4 @@ jobs:
           app-name: 'aisecuagent'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7D915BC944D142CE8BDE745CB0BC06DC }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E08A4E3B51294AC8A4EDAF62879CEDD4 }}
