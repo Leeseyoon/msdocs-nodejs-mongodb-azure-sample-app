@@ -25,17 +25,19 @@ router.use(cors({
   credentials: true
 }));
 
-router.post('/api/login', async (req, res) => {
-  try {
-    console.log(object);
-    const decryptedUsername = decryption(username);
-    const decryptedPassword = decryption(password);
+router.post('/api/login', function (req, res) {
+  const { username, password, checkSession } = req.body;
+  console.log(`Adding a new task ${username} - createDate ${password}`);
+  // try {
+  //   console.log(object);
+  //   const decryptedUsername = decryption(username);
+  //   const decryptedPassword = decryption(password);
 
-    console.log(decryptedUsername, decryptedPassword);
-  } catch(err) {
-    console.log('오류가 발생하였습니다.');
-    res.status(500).json( {message : '오류가 발생하였습니다.'  });
-  }
+  //   console.log(decryptedUsername, decryptedPassword);
+  // } catch(err) {
+  //   console.log('오류가 발생하였습니다.');
+  //   res.status(500).json( {message : '오류가 발생하였습니다.'  });
+  // }
 })
 /* GET home page. */
 router.get('/', function(req, res, next) {
