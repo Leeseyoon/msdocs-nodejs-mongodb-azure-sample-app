@@ -2,11 +2,24 @@ var express = require('express');
 var Task = require('../models/task');
 
 var router = express.Router();
+const cors = require('cors');
+
+const allowedOrigins = [
+  'js-deploy-test-h4fafsheajbvczgx.koreacentral-01.azurewebsites.net'
+];
+
+
+router.use(cors({
+  origin: allowedOrigins,
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true
+}));
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   Task.find()
-    .then((tasks) => {      
+    .then((tasks) => {
       const currentTasks = tasks.filter(task => !task.completed);
       const completedTasks = tasks.filter(task => task.completed === true);
 
@@ -23,7 +36,7 @@ router.get('/', function(req, res, next) {
 router.post('/addTask', function(req, res, next) {
   const taskName = req.body.taskName;
   const createDate = Date.now();
-  
+
   var task = new Task({
     taskName: taskName,
     createDate: createDate
@@ -31,8 +44,8 @@ router.post('/addTask', function(req, res, next) {
   console.log(`Adding a new task ${taskName} - createDate ${createDate}`)
 
   task.save()
-      .then(() => { 
-        console.log(`Added new task ${taskName} - createDate ${createDate}`)        
+      .then(() => {
+        console.log(`Added new task ${taskName} - createDate ${createDate}`)
         res.redirect('/'); })
       .catch((err) => {
           console.log(err);
@@ -46,7 +59,7 @@ router.post('/completeTask', function(req, res, next) {
   const completedDate = Date.now();
 
   Task.findByIdAndUpdate(taskId, { completed: true, completedDate: Date.now()})
-    .then(() => { 
+    .then(() => {
       console.log(`Completed task ${taskId}`)
       res.redirect('/'); }  )
     .catch((err) => {
@@ -60,8 +73,8 @@ router.post('/deleteTask', function(req, res, next) {
   const taskId = req.body._id;
   const completedDate = Date.now();
   Task.findByIdAndDelete(taskId)
-    .then(() => { 
-      console.log(`Deleted task $(taskId)`)      
+    .then(() => {
+      console.log(`Deleted task $(taskId)`)
       res.redirect('/'); }  )
     .catch((err) => {
       console.log(err);
