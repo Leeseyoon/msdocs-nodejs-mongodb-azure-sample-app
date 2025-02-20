@@ -6,6 +6,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const { format } = require("date-fns");
 require('dotenv').config();
+const session = require('express-session');
 
 // 1st party dependencies
 var indexRouter = require("./routes/index");
@@ -38,6 +39,13 @@ async function getApp() {
   app.use(express.static(path.join(__dirname, "public")));
 
   app.locals.format = format;
+
+  app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+  }));
 
   app.use("/", indexRouter);
   app.use("/js", express.static(__dirname + "/node_modules/bootstrap/dist/js")); // redirect bootstrap JS

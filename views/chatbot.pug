@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .chat-container
+    h1 채팅봇
+    #chat-messages
+      // 메시지들이 여기에 표시됨
+    .input-area
+      form#chat-form
+        input#message(type="text" placeholder="메시지를 입력하세요...")
+        button(type="submit") 전송
+
+  script(src="/javascripts/chat.js")
