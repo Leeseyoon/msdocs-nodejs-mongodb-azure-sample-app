@@ -66,10 +66,21 @@ router.post('/api/login', async (req, res) => {
 /* GET home page. */
 router.get('/', async function(req, res, next) {
   try {
-    // if (req.session && req.session.user) {
-    //   return res.redirect('/chatbot');
-    // }
-    res.send('');
+    // 현재 시간을 가져오기
+    const currentTime = new Date().toLocaleString(); // 로컬 시간 형식으로 변환
+
+    // 간단한 메시지와 배포 시간을 포함한 HTML 응답
+    res.send(`
+      <html>
+        <head>
+          <title>배포 확인</title>
+        </head>
+        <body>
+          <h1>배포가 성공적으로 완료되었습니다!</h1>
+          <p>현재 시간: ${currentTime}</p>
+        </body>
+      </html>
+    `);
   } catch(err) {
     next(err);
   }
