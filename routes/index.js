@@ -9,7 +9,7 @@ const cors = require('cors');
 const CryptoJS = require('crypto-js');
 
 const allowedOrigins = [
-  'js-deploy-test-h4fafsheajbvczgx.koreacentral-01.azurewebsites.net',
+  'https://js-deploy-test-h4fafsheajbvczgx.koreacentral-01.azurewebsites.net',
   'http://localhost:3000'
 ];
 app.use(cors({
