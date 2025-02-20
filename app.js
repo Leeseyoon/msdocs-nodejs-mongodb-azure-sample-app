@@ -5,6 +5,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const { format } = require("date-fns");
+require('dotenv').config();
 
 // 1st party dependencies
 var indexRouter = require("./routes/index");
