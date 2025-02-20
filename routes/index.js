@@ -4,13 +4,20 @@ const Chat = require('../models/chat');
 const User = require('../models/user');
 
 var router = express.Router();
+const app = express();
 const cors = require('cors');
 const CryptoJS = require('crypto-js');
 
 const allowedOrigins = [
-  'js-deploy-test-h4fafsheajbvczgx.koreacentral-01.azurewebsites.net'
+  'js-deploy-test-h4fafsheajbvczgx.koreacentral-01.azurewebsites.net',
+  'http://localhost:3000'
 ];
-
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 const key = CryptoJS.enc.Hex.parse('12345678901234567890123456789012'); // 32바이트 키
 const iv = CryptoJS.enc.Hex.parse('1234567890123456'); // 16바이트 IV
 const ivForFunc = CryptoJS.enc.Hex.parse('6543210987654321'); // 16바이트 IV
@@ -28,31 +35,41 @@ router.use(cors({
 }));
 
 router.post('/api/login', async (req, res) => {
-  try {
-    const { username, password, checkSession } = req.body;
-    console.log(`Adding a new task ${username} - createDate ${password}`);
-  } catch(err) {
-    console.log('오류가 발생하였습니다.');
-    res.status(500).json( {message : '오류가 발생하였습니다.'  });
-  }
-  // try {
-  //   console.log(object);
-  //   const decryptedUsername = decryption(username);
-  //   const decryptedPassword = decryption(password);
+    try {
+        const { username, password } = req.body;
 
-  //   console.log(decryptedUsername, decryptedPassword);
-  // } catch(err) {
-  //   console.log('오류가 발생하였습니다.');
-  //   res.status(500).json( {message : '오류가 발생하였습니다.'  });
-  // }
-})
+        // 사용자 조회 및 인증 로직
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(401).json({ message: "아이디 또는 비밀번호가 잘못되었습니다." });
+        }
+
+        if (user.password !== password) {
+            return res.status(401).json({ message: '로그인 실패.' });
+        }
+
+        // 로그인 성공 시 세션 설정
+        req.session.user = {
+            id: user._id,
+            username: user.username
+        };
+
+        res.status(200).json({ message: '로그인 성공.' });
+
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
 /* GET home page. */
 router.get('/', async function(req, res, next) {
   try {
-    if (req.session && req.session.user) {
-      return res.redirect('/chatbot');
-    }
-    res.render('login');
+    // if (req.session && req.session.user) {
+    //   return res.redirect('/chatbot');
+    // }
+    res.send('');
   } catch(err) {
     next(err);
   }

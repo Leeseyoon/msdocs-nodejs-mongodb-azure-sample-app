@@ -1,4 +1,3 @@
-var createError = require("http-errors");
 var express = require("express");
 var mongoose = require("mongoose");
 var path = require("path");
@@ -25,12 +24,8 @@ async function getApp() {
 
   var app = express();
 
-  var port = normalizePort(process.env.PORT || '3000');
+  var port = normalizePort(process.env.PORT || '5002');
   app.set('port', port);
-
-  // view engine setup
-  app.set("views", path.join(__dirname, "views"));
-  app.set("view engine", "pug");
 
   app.use(logger("dev"));
   app.use(express.json());
@@ -59,7 +54,7 @@ async function getApp() {
 
   // catch 404 and forward to error handler
   app.use(function (req, res, next) {
-    next(createError(404));
+    res.status(404).json({ message: 'Not Found' });
   });
 
   // error handler

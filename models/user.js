@@ -11,9 +11,41 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  createdAt: {
+  failed_login_attempts: {
+    type: Number,
+    default: 0
+  },
+  locked_until: {
+    type: Date,
+    default: null
+  },
+  locked: {
+    type: Boolean,
+    default: false
+  },
+  otp: {
+    type: String,
+    default: null
+  },
+  created_at: {
     type: Date,
     default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
+  },
+  otp_expiry: {
+    type: Date,
+    default: null
+  },
+  auth: {
+    type: Number,
+    default: 0
+  },
+  authorized: {
+    type: Number,
+    default: 0
   }
 });
 
