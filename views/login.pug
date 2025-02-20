@@ -1,13 +1,198 @@
-extends layout
+doctype html
+html
+  head
+    title 로그인
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet")
+    // CryptoJS CDN만 유지
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js")
+  body
+    .login-container
+      h2 로그인 페이지
+      form#loginForm(onsubmit="handleSubmit(event)")
+        p 아이디
+        input#username.input-style(
+          type="text"
+          required
+        )
+        p 비밀번호
+        input#password.input-style(
+          type="password"
+          required
+        )
+        button.login-button(type="submit") 로그인
+        button.login-button(type="button" onclick="handleTestClick()") ai-foundry
 
-block content
-  .login-container
-    h1 로그인
-    form(action="/login" method="POST")
-      .form-group
-        label(for="username") 사용자명
-        input#username(type="text" name="username" required)
-      .form-group
-        label(for="password") 비밀번호
-        input#password(type="password" name="password" required)
-      button(type="submit") 로그인
+      // OTP 모달
+      #otpModal.modal(style="display: none;")
+        .modal-content
+          h3 OTP 입력
+          p#timeLeft
+          input#otpInput.input-style(
+            type="text"
+            placeholder="OTP 입력"
+          )
+          button#submitButton.submit-button(onclick="handleOtpSubmit()") 제출
+          button#resendButton.resend-button(onclick="handleResendOtp()" style="display: none;") 재요청
+          button.close-button(onclick="closeModal('otpModal')") 닫기
+
+      // 최초 로그인 모달
+      #firstLoginModal.modal(style="display: none;")
+        .modal-content
+          h3 서비스에 처음 로그인하셨습니다.
+          p 해당 사이트에 처음 로그인했기 때문에 담당자에게 권한을 부여 받도록 요청해주세요.
+          p 권한 요청 버튼을 클릭하면 메일이 전송됩니다. (담당자 : KT ###부문 ###본부 @#$).
+          button.submit-button(onclick="handleAuthorize()") 권한 요청
+          button.close-button(onclick="closeModal('firstLoginModal')") 닫기
+
+      // 에러 모달
+      #errorModal.modal(style="display: none;")
+        .modal-content
+          h3#errorMessage
+          p#errorDetail
+          button.close-button(onclick="closeModal('errorModal')") 닫기
+
+    script.
+      let timeLeft = 180; // 3분
+      let timer;
+
+      // 모달 열기 함수
+      function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+      }
+
+      // 모달 닫기 함수
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        if (modalId === 'otpModal') {
+          clearInterval(timer);
+        }
+      }
+
+      // OTP 타이머 시작
+      function startOtpTimer() {
+        clearInterval(timer);
+        timeLeft = 180;
+        timer = setInterval(() => {
+          timeLeft--;
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          document.getElementById('timeLeft').textContent =
+            `유효 시간: ${minutes}분 ${seconds}초 ${timeLeft <= 0 ? '(유효시간이 만료되었습니다. 재요청 버튼을 눌러주세요)' : ''}`;
+
+          if (timeLeft <= 0) {
+            document.getElementById('submitButton').style.display = 'none';
+            document.getElementById('resendButton').style.display = 'inline-block';
+            document.getElementById('otpInput').disabled = true;
+            clearInterval(timer);
+          }
+        }, 1000);
+      }
+
+      // 암호화 관련 설정
+      const key = CryptoJS.enc.Hex.parse('12345678901234567890123456789012');
+      const iv = CryptoJS.enc.Hex.parse('1234567890123456');
+
+      function encrypt(text) {
+        return CryptoJS.AES.encrypt(text, key, {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        }).toString();
+      }
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+          const response = await fetch(`http://localhost:5001//api/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: encrypt(username),
+              password: encrypt(password)
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.requireOtp) {
+              openModal('otpModal');
+              startOtpTimer();
+            } else {
+              window.location.href = '/chatbot';
+            }
+          } else {
+            const error = await response.json();
+            document.getElementById('errorMessage').textContent = error.message;
+            openModal('errorModal');
+          }
+        } catch (error) {
+          console.error('로그인 처리 중 오류:', error);
+        }
+      }
+
+      function handleTestClick() {
+        console.log('ai-foundry button clicked');
+      }
+
+      // 권한 요청 처리
+      async function handleAuthorize() {
+        try {
+          const response = await fetch('/request-authorization', {
+            method: 'POST'
+          });
+          if (response.ok) {
+            closeModal('firstLoginModal');
+          }
+        } catch (error) {
+          console.error('권한 요청 중 오류:', error);
+        }
+      }
+
+      // OTP 관련 함수들
+      async function handleOtpSubmit() {
+        const otp = document.getElementById('otpInput').value;
+        try {
+          const response = await fetch('/verify-otp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ otp })
+          });
+
+          if (response.ok) {
+            window.location.href = '/chatbot';
+          } else {
+            const error = await response.json();
+            document.getElementById('errorMessage').textContent = error.message;
+            openModal('errorModal');
+          }
+        } catch (error) {
+          console.error('OTP 검증 중 오류:', error);
+        }
+      }
+
+      async function handleResendOtp() {
+        try {
+          const response = await fetch('/resend-otp', {
+            method: 'POST'
+          });
+
+          if (response.ok) {
+            startOtpTimer();
+            document.getElementById('submitButton').style.display = 'inline-block';
+            document.getElementById('resendButton').style.display = 'none';
+            document.getElementById('otpInput').disabled = false;
+            document.getElementById('otpInput').value = '';
+          }
+        } catch (error) {
+          console.error('OTP 재요청 중 오류:', error);
+        }
+      }

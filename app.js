@@ -54,6 +54,9 @@ async function getApp() {
     express.static(__dirname + "/node_modules/bootstrap/dist/css")
   ); // redirect CSS bootstrap
 
+  // crypto-js 라이브러리 파일에 대한 경로 설정
+  app.use('/javascripts/crypto-js', express.static(path.join(__dirname, 'node_modules/crypto-js')));
+
   // catch 404 and forward to error handler
   app.use(function (req, res, next) {
     next(createError(404));
