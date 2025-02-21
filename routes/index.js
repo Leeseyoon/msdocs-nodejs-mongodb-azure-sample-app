@@ -37,7 +37,7 @@ router.use(cors({
 router.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-
+        res.status(200).json({ message: '로그인 성공.' });
         // 사용자 조회 및 인증 로직
         const user = await User.findOne({ username });
 
