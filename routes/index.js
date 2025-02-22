@@ -69,7 +69,7 @@ router.get('/', async function(req, res, next) {
     // if (req.session && req.session.user) {
     //   return res.redirect('/chatbot');
     // }
-    res.send('<h1>Welcome to the Home Page!</h1>');
+    // res.send('<h1>Welcome to the Home Page!</h1>');
     res.render('index');
   } catch(err) {
     next(err);
@@ -254,6 +254,33 @@ router.get('/logout', function(req, res) {
     // 로그인 페이지로 리다이렉트
     res.redirect('/');
   });
+});
+
+// 데이터 추가 엔드포인트
+router.post('/api/addData', async (req, res) => {
+    try {
+        const { username, password } = req.body; // 클라이언트에서 전달된 데이터
+
+        // 데이터 유효성 검사
+        if (!username || !password) {
+            return res.status(400).json({ message: '사용자 이름과 비밀번호가 필요합니다.' });
+        }
+
+        // 새로운 사용자 생성
+        const newUser = new User({
+            username: username,
+            password: password // 비밀번호는 해싱 미들웨어에 의해 해싱됩니다.
+        });
+
+        // 사용자 데이터를 데이터베이스에 저장
+        await newUser.save();
+
+        // 성공 응답
+        res.status(201).json({ message: '사용자가 추가되었습니다.', user: newUser });
+    } catch (error) {
+        console.error('데이터 추가 중 오류:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
 });
 
 module.exports = router;

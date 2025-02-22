@@ -2,6 +2,16 @@ extends layout
 extends login
 block content
 
+  form(action='./addData' method='POST' class='form-registration')
+    div(class='row my-3')
+        div(class='col-md-2 align-bottom')
+          label(for="taskName" class='fs-5') New task
+        div(class='col-md-8')
+          input(class="form-control form-control-sm" type="text" name='username', placeholder="Enter new task here" )
+        div(class='col-md-2 text-end')
+          button(class='btn btn-success btn-sm' type='submit') Add username
+
+
   form(action='./addTask' method='POST' class='form-registration')
     div(class='row my-3')
         div(class='col-md-2 align-bottom')
