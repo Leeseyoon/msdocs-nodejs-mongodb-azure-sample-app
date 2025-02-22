@@ -27,6 +27,9 @@ async function getApp() {
   var port = normalizePort(process.env.PORT || '5002');
   app.set('port', port);
 
+  app.set('views', path.join(__dirname, 'views')); // views 디렉토리 경로 설정
+  app.set('view engine', 'pug'); // Pug를 뷰 엔진으로 설정
+
   app.use(logger("dev"));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));

@@ -69,7 +69,7 @@ router.get('/', async function(req, res, next) {
     // if (req.session && req.session.user) {
     //   return res.redirect('/chatbot');
     // }
-    // res.send('<h1>Welcome to the Home Page!</h1>');
+    res.send('<h1>Welcome to the Home Page!!</h1>');
     res.render('index');
   } catch(err) {
     next(err);
@@ -259,22 +259,21 @@ router.get('/logout', function(req, res) {
 // 데이터 추가 엔드포인트
 router.post('/api/addData', async (req, res) => {
     try {
-        const { username, password } = req.body; // 클라이언트에서 전달된 데이터
-
-        // 데이터 유효성 검사
-        if (!username || !password) {
-            return res.status(400).json({ message: '사용자 이름과 비밀번호가 필요합니다.' });
-        }
+        const username = req.body.username;
+        const password = req.body.password;
+        const creatDate = Date.now();
 
         // 새로운 사용자 생성
         const newUser = new User({
             username: username,
-            password: password // 비밀번호는 해싱 미들웨어에 의해 해싱됩니다.
+            password: password, // 비밀번호는 해싱 미들웨어에 의해 해싱됩니다.
+            created_at: creatDate,
         });
 
         // 사용자 데이터를 데이터베이스에 저장
         await newUser.save();
-
+        console.log(`Added new task ${username} ${password} - createDate ${creatDate}`);
+        res.redirect('/');
         // 성공 응답
         res.status(201).json({ message: '사용자가 추가되었습니다.', user: newUser });
     } catch (error) {
