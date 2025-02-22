@@ -69,7 +69,7 @@ router.get('/', async function(req, res, next) {
     // if (req.session && req.session.user) {
     //   return res.redirect('/chatbot');
     // }
-    res.send('<h1>Welcome to the Home Page!!</h1>');
+    // res.send('<h1>Welcome to the Home Page!!</h1>');
     res.render('index');
   } catch(err) {
     next(err);
